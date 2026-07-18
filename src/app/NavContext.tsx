@@ -7,14 +7,33 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { getById, sidebarTargets, type CatalogItem } from '../data/navCatalog';
+import {
+  getById,
+  sidebarTargets,
+  specialRoutes,
+  type CatalogItem,
+} from '../data/navCatalog';
 
-export type View = 'home' | 'product' | 'shop' | 'content';
+export type View =
+  | 'home'
+  | 'product'
+  | 'shop'
+  | 'content'
+  | 'compare'
+  | 'inventory'
+  | 'trade-in'
+  | 'design'
+  | 'offers'
+  | 'trip';
 
 export type NavState = {
   view: View;
   productId?: string;
   focus?: 'order' | 'learn';
+  /** design studio vehicle id */
+  designId?: string;
+  /** inventory tab */
+  inventoryTab?: 'new' | 'used';
 };
 
 type NavContextValue = {
@@ -24,8 +43,14 @@ type NavContextValue = {
   goShop: () => void;
   goProduct: (id: string, focus?: 'order' | 'learn') => void;
   goContent: (id: string) => void;
+  goCompare: () => void;
+  goInventory: (tab?: 'new' | 'used') => void;
+  goTradeIn: () => void;
+  goDesign: (vehicleId?: string) => void;
+  goOffers: () => void;
+  goTrip: () => void;
   navigateFromSidebar: (label: string) => void;
-  /** Simulate order / shop / schedule action with optional notify hook from outside */
+  navigateRoute: (key: string) => void;
   confirmAction: (label: string, productName?: string) => void;
   lastAction: string | null;
 };
@@ -36,6 +61,16 @@ function parseHash(): NavState {
   const raw = window.location.hash.replace(/^#\/?/, '');
   if (!raw || raw === 'home') return { view: 'home' };
   if (raw === 'shop') return { view: 'shop' };
+  if (raw === 'compare') return { view: 'compare' };
+  if (raw === 'inventory' || raw === 'inventory/new') return { view: 'inventory', inventoryTab: 'new' };
+  if (raw === 'inventory/used') return { view: 'inventory', inventoryTab: 'used' };
+  if (raw === 'trade-in') return { view: 'trade-in' };
+  if (raw === 'offers') return { view: 'offers' };
+  if (raw === 'trip') return { view: 'trip' };
+  if (raw.startsWith('design')) {
+    const parts = raw.split('/');
+    return { view: 'design', designId: parts[1] || 'model-3' };
+  }
   if (raw.startsWith('product/')) {
     const parts = raw.split('/');
     const id = parts[1];
@@ -50,14 +85,34 @@ function parseHash(): NavState {
 }
 
 function toHash(state: NavState): string {
-  if (state.view === 'home') return '#/';
-  if (state.view === 'shop') return '#/shop';
-  if (state.view === 'product' && state.productId) {
-    const focus = state.focus ? `/${state.focus}` : '';
-    return `#/product/${state.productId}${focus}`;
+  switch (state.view) {
+    case 'home':
+      return '#/';
+    case 'shop':
+      return '#/shop';
+    case 'compare':
+      return '#/compare';
+    case 'inventory':
+      return state.inventoryTab === 'used' ? '#/inventory/used' : '#/inventory';
+    case 'trade-in':
+      return '#/trade-in';
+    case 'offers':
+      return '#/offers';
+    case 'trip':
+      return '#/trip';
+    case 'design':
+      return `#/design/${state.designId || 'model-3'}`;
+    case 'product':
+      if (state.productId) {
+        const focus = state.focus ? `/${state.focus}` : '';
+        return `#/product/${state.productId}${focus}`;
+      }
+      return '#/';
+    case 'content':
+      return state.productId ? `#/content/${state.productId}` : '#/';
+    default:
+      return '#/';
   }
-  if (state.view === 'content' && state.productId) return `#/content/${state.productId}`;
-  return '#/';
 }
 
 export function NavProvider({ children }: { children: ReactNode }) {
@@ -86,15 +141,53 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
   const goHome = useCallback(() => apply({ view: 'home' }), [apply]);
   const goShop = useCallback(() => apply({ view: 'shop' }), [apply]);
-  const goProduct = useCallback(
-    (id: string, focus?: 'order' | 'learn') => {
-      apply({ view: 'product', productId: id, focus });
-    },
+  const goCompare = useCallback(() => apply({ view: 'compare' }), [apply]);
+  const goInventory = useCallback(
+    (tab: 'new' | 'used' = 'new') => apply({ view: 'inventory', inventoryTab: tab }),
     [apply],
   );
+  const goTradeIn = useCallback(() => apply({ view: 'trade-in' }), [apply]);
+  const goDesign = useCallback(
+    (vehicleId = 'model-3') => apply({ view: 'design', designId: vehicleId }),
+    [apply],
+  );
+  const goOffers = useCallback(() => apply({ view: 'offers' }), [apply]);
+  const goTrip = useCallback(() => apply({ view: 'trip' }), [apply]);
+
+  const goProduct = useCallback(
+    (id: string, focus?: 'order' | 'learn') => {
+      // Map special product ids to dedicated pages
+      if (id === 'inventory') {
+        goInventory(focus === 'learn' ? 'used' : 'new');
+        return;
+      }
+      if (id === 'current-offers') {
+        goOffers();
+        return;
+      }
+      apply({ view: 'product', productId: id, focus });
+    },
+    [apply, goInventory, goOffers],
+  );
+
   const goContent = useCallback(
     (id: string) => apply({ view: 'content', productId: id }),
     [apply],
+  );
+
+  const navigateRoute = useCallback(
+    (key: string) => {
+      if (key === 'shop') goShop();
+      else if (key === 'compare') goCompare();
+      else if (key === 'inventory') goInventory('new');
+      else if (key === 'trade-in') goTradeIn();
+      else if (key === 'design') goDesign();
+      else if (key === 'offers') goOffers();
+      else if (key === 'trip') goTrip();
+      else if (getById(key)) goProduct(key);
+      else goHome();
+    },
+    [goCompare, goDesign, goHome, goInventory, goOffers, goProduct, goShop, goTradeIn, goTrip],
   );
 
   const navigateFromSidebar = useCallback(
@@ -104,17 +197,22 @@ export function NavProvider({ children }: { children: ReactNode }) {
         return;
       }
       const id = sidebarTargets[label];
-      if (id === 'shop') goShop();
-      else if (id) goProduct(id);
-      else goHome();
+      if (!id) {
+        goHome();
+        return;
+      }
+      if (specialRoutes.has(id)) {
+        navigateRoute(id);
+        return;
+      }
+      goProduct(id);
     },
-    [goHome, goProduct, goShop],
+    [goHome, goProduct, goShop, navigateRoute],
   );
 
   const confirmAction = useCallback((label: string, productName?: string) => {
     const name = productName ? ` — ${productName}` : '';
-    const msg = `${label}${name}`;
-    setLastAction(msg);
+    setLastAction(`${label}${name}`);
   }, []);
 
   const product = state.productId ? getById(state.productId) ?? null : null;
@@ -127,7 +225,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
       goShop,
       goProduct,
       goContent,
+      goCompare,
+      goInventory,
+      goTradeIn,
+      goDesign,
+      goOffers,
+      goTrip,
       navigateFromSidebar,
+      navigateRoute,
       confirmAction,
       lastAction,
     }),
@@ -138,7 +243,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
       goShop,
       goProduct,
       goContent,
+      goCompare,
+      goInventory,
+      goTradeIn,
+      goDesign,
+      goOffers,
+      goTrip,
       navigateFromSidebar,
+      navigateRoute,
       confirmAction,
       lastAction,
     ],

@@ -92,6 +92,50 @@ export const catalog: CatalogItem[] = [
     features: ['Three Rows, Six Seats', 'Starting at $61,990', 'Long Wheelbase'],
     sectionId: 'model-y-l',
   },
+  {
+    id: 'semi',
+    name: 'Semi',
+    desc: 'Electric semi truck',
+    image: images.cybertruck,
+    category: 'vehicles',
+    ctaPrimary: 'Learn More',
+    ctaSecondary: 'Reserve',
+    blurb: 'Tesla Semi is designed for efficiency, safety and reliability for freight and fleet operators.',
+    features: ['All-electric freight', 'High efficiency', 'Fleet ready'],
+  },
+  {
+    id: 'roadster',
+    name: 'Roadster',
+    desc: 'Upcoming sports car',
+    image: images.modelSMain,
+    category: 'vehicles',
+    ctaPrimary: 'Reserve',
+    ctaSecondary: 'Learn More',
+    blurb: 'The next-generation Roadster is designed for extreme performance and long-range electric thrills.',
+    features: ['Upcoming', 'High performance', 'Reserve interest'],
+  },
+  {
+    id: 'robotaxi',
+    name: 'Robotaxi',
+    desc: 'Autonomous ride network',
+    image: images.fsd,
+    category: 'vehicles',
+    ctaPrimary: 'Learn More',
+    ctaSecondary: 'Stay Updated',
+    blurb: 'Robotaxi represents Tesla’s vision for autonomous ride-hailing under supervised autonomy progress.',
+    features: ['Autonomous vision', 'Future mobility', 'AI-driven'],
+  },
+  {
+    id: 'fleet',
+    name: 'Fleet',
+    desc: 'Business & commercial',
+    image: images.modelYAlt,
+    category: 'vehicles',
+    ctaPrimary: 'Contact Sales',
+    ctaSecondary: 'Learn More',
+    blurb: 'Tesla for Business — vehicles, charging and energy solutions for fleets and commercial customers.',
+    features: ['Fleet vehicles', 'Charging solutions', 'Business support'],
+  },
 
   // Energy
   {
@@ -350,25 +394,32 @@ export function getByCategory(category: CatalogCategory): CatalogItem[] {
   return catalog.filter((c) => c.category === category);
 }
 
-/** Sidebar labels → catalog or content ids */
+/**
+ * Sidebar labels → routes.
+ * Special route keys (not product ids): compare, inventory, trade-in, design, offers, trip, shop
+ */
 export const sidebarTargets: Record<string, string> = {
   Inventory: 'inventory',
   'Used Inventory': 'inventory',
   'Demo Drive': 'demo-drive',
-  'Trade-in': 'current-offers',
-  Compare: 'model-3',
-  'Help Me Choose': 'model-y',
-  Fleet: 'model-y',
-  Semi: 'cybertruck',
-  Roadster: 'cybertruck',
+  'Trade-in': 'trade-in',
+  Compare: 'compare',
+  'Help Me Choose': 'compare',
+  Fleet: 'fleet',
+  Semi: 'semi',
+  Roadster: 'roadster',
+  Robotaxi: 'robotaxi',
+  'Full Self-Driving (Supervised)': 'fsd',
+  'Current Offers': 'offers',
   'Schedule a Consultation': 'solar-panels',
   'Why Solar': 'solar-panels',
-  Incentives: 'current-offers',
+  Incentives: 'offers',
   Support: 'support',
   'Partner with Tesla': 'megapack',
   'Find a Supercharger': 'supercharger',
-  'Trip Planner': 'charging',
+  'Trip Planner': 'trip',
   'Charging Calculator': 'home-charging',
+  Supercharging: 'supercharger',
   Help: 'support',
   About: 'support',
   Careers: 'support',
@@ -376,3 +427,14 @@ export const sidebarTargets: Record<string, string> = {
   Shop: 'shop',
   'Find a Store': 'demo-drive',
 };
+
+/** Route keys handled by NavContext special views */
+export const specialRoutes = new Set([
+  'shop',
+  'compare',
+  'inventory',
+  'trade-in',
+  'design',
+  'offers',
+  'trip',
+]);

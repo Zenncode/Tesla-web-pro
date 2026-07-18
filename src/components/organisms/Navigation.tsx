@@ -25,6 +25,9 @@ const sidebarLinks: Record<string, string[]> = {
     'Fleet',
     'Semi',
     'Roadster',
+    'Robotaxi',
+    'Full Self-Driving (Supervised)',
+    'Current Offers',
   ],
   Energy: [
     'Schedule a Consultation',
@@ -33,7 +36,13 @@ const sidebarLinks: Record<string, string[]> = {
     'Support',
     'Partner with Tesla',
   ],
-  Charging: ['Find a Supercharger', 'Trip Planner', 'Charging Calculator', 'Help'],
+  Charging: [
+    'Find a Supercharger',
+    'Trip Planner',
+    'Charging Calculator',
+    'Supercharging',
+    'Help',
+  ],
   Discover: ['Support', 'About', 'Careers', 'Find Us'],
   Shop: ['Shop', 'Find a Store'],
 };

@@ -30,7 +30,7 @@ const body: React.CSSProperties = {
 /** Full vehicle landing page (Model S–style layout from tesla.com) */
 export function VehicleDetailPage({ vehicleId }: { vehicleId: string }) {
   const detail = getVehicleDetail(vehicleId);
-  const { goHome, goProduct } = useNav();
+  const { goHome, goProduct, goInventory, goTradeIn, goDesign, goCompare } = useNav();
   const { notify } = useToast();
   const [specTrim, setSpecTrim] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
@@ -38,6 +38,17 @@ export function VehicleDetailPage({ vehicleId }: { vehicleId: string }) {
   if (!detail) return null;
 
   const primary = () => {
+    const label = detail.primaryCta.toLowerCase();
+    if (label.includes('inventory') || label.includes('browse')) {
+      notify(detail.primaryCta);
+      goInventory('new');
+      return;
+    }
+    if (label.includes('order') || label.includes('design')) {
+      notify(detail.primaryCta);
+      goDesign(detail.id);
+      return;
+    }
     setConfirmed(true);
     notify(`${detail.primaryCta} — ${detail.name}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -45,10 +56,13 @@ export function VehicleDetailPage({ vehicleId }: { vehicleId: string }) {
 
   const secondary = () => {
     notify(`${detail.secondaryCta} — ${detail.name}`);
-    if (detail.secondaryCta.toLowerCase().includes('inventory')) {
-      goProduct('inventory', 'learn');
-    } else if (detail.secondaryCta.toLowerCase().includes('estimate')) {
-      notify('Trade-in estimate (demo)');
+    const label = detail.secondaryCta.toLowerCase();
+    if (label.includes('inventory')) {
+      goInventory(label.includes('pre') || label.includes('used') ? 'used' : 'new');
+    } else if (label.includes('estimate') || label.includes('trade')) {
+      goTradeIn();
+    } else if (label.includes('order') || label.includes('design')) {
+      goDesign(detail.id);
     } else {
       const el = document.getElementById('vehicle-interior');
       el?.scrollIntoView({ behavior: 'smooth' });
@@ -551,7 +565,7 @@ export function VehicleDetailPage({ vehicleId }: { vehicleId: string }) {
                 type="button"
                 onClick={() => {
                   notify('Compare Models');
-                  goProduct('model-3', 'learn');
+                  goCompare();
                 }}
               >
                 Compare Models
