@@ -1,0 +1,85 @@
+:root {
+  /* ── Colors (tesla.com) ── */
+  --color-electric-blue: #3E6AE1;
+  --color-electric-blue-hover: #3457B1;
+  --color-electric-blue-active: #2B4A9A;
+  --color-pure-white: #FFFFFF;
+  --color-light-ash: #F4F4F4;
+  --color-carbon-dark: #171A20;
+  --color-graphite: #393C41;
+  --color-pewter: #5C5E62;
+  --color-silver-fog: #8E8E8E;
+  --color-cloud-gray: #EEEEEE;
+  --color-pale-silver: #D0D1D2;
+  --color-frosted-glass: rgba(255, 255, 255, 0.85);
+  --color-scrim: rgba(0, 0, 0, 0.28);
+  --color-overlay: rgba(0, 0, 0, 0.4);
+
+  /* ── Typography
+     Live site: proprietary Universal Sans Display / Text.
+     Public stand-in: Inter @ 400/500 (same geometric restraint, weight set). ── */
+  --font-display: 'Inter', 'Universal Sans Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-text: 'Inter', 'Universal Sans Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+
+  --fs-hero-title: 40px;
+  --fs-hero-title-mobile: 28px;
+  --fs-product-name: 17px;
+  --fs-nav: 14px;
+  --fs-body: 14px;
+  --fs-button: 14px;
+  --fs-sub-link: 14px;
+  --fs-promo: 14px;
+  --fs-category: 16px;
+  --fs-footer: 12px;
+  --fs-stat: 40px;
+
+  --fw-medium: 500;
+  --fw-regular: 400;
+
+  --lh-hero: 1.2;
+  --lh-product: 1.18;
+  --lh-nav: 1.2;
+  --lh-body: 1.43;
+
+  /* ── Spacing (8px base) ── */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* ── Radius ── */
+  --radius-none: 0;
+  --radius-btn: 4px;
+  --radius-card: 12px;
+  --radius-circle: 50%;
+
+  /* ── Motion (Tesla cubic-bezier) ── */
+  --ease-tesla: cubic-bezier(0.5, 0, 0, 0.75);
+  --transition-base: 0.33s var(--ease-tesla);
+  --transition-fast: 0.25s var(--ease-tesla);
+
+  /* ── Layout ── */
+  --max-width: 1200px;
+  --max-width-wide: 1383px;
+  --nav-height: 56px;
+  --chat-height: 56px;
+  --btn-min-height: 40px;
+  --btn-width: 200px;
+  --btn-secondary-width: 160px;
+  --nav-btn-height: 32px;
+  --logo-width: 120px;
+  --logo-width-mobile: 100px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --fs-hero-title: var(--fs-hero-title-mobile);
+    --btn-width: 180px;
+    --logo-width: var(--logo-width-mobile);
+  }
+}
