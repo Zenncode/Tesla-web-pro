@@ -18,6 +18,9 @@ export type View =
   | 'home'
   | 'product'
   | 'shop'
+  | 'discover'
+  | 'energy'
+  | 'charging-hub'
   | 'content'
   | 'compare'
   | 'inventory'
@@ -41,6 +44,9 @@ type NavContextValue = {
   product: CatalogItem | null;
   goHome: () => void;
   goShop: () => void;
+  goDiscover: () => void;
+  goEnergy: () => void;
+  goChargingHub: () => void;
   goProduct: (id: string, focus?: 'order' | 'learn') => void;
   goContent: (id: string) => void;
   goCompare: () => void;
@@ -61,6 +67,9 @@ function parseHash(): NavState {
   const raw = window.location.hash.replace(/^#\/?/, '');
   if (!raw || raw === 'home') return { view: 'home' };
   if (raw === 'shop') return { view: 'shop' };
+  if (raw === 'discover') return { view: 'discover' };
+  if (raw === 'energy') return { view: 'energy' };
+  if (raw === 'charging' || raw === 'charging-hub') return { view: 'charging-hub' };
   if (raw === 'compare') return { view: 'compare' };
   if (raw === 'inventory' || raw === 'inventory/new') return { view: 'inventory', inventoryTab: 'new' };
   if (raw === 'inventory/used') return { view: 'inventory', inventoryTab: 'used' };
@@ -90,6 +99,12 @@ function toHash(state: NavState): string {
       return '#/';
     case 'shop':
       return '#/shop';
+    case 'discover':
+      return '#/discover';
+    case 'energy':
+      return '#/energy';
+    case 'charging-hub':
+      return '#/charging';
     case 'compare':
       return '#/compare';
     case 'inventory':
@@ -141,6 +156,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
   const goHome = useCallback(() => apply({ view: 'home' }), [apply]);
   const goShop = useCallback(() => apply({ view: 'shop' }), [apply]);
+  const goDiscover = useCallback(() => apply({ view: 'discover' }), [apply]);
+  const goEnergy = useCallback(() => apply({ view: 'energy' }), [apply]);
+  const goChargingHub = useCallback(() => apply({ view: 'charging-hub' }), [apply]);
   const goCompare = useCallback(() => apply({ view: 'compare' }), [apply]);
   const goInventory = useCallback(
     (tab: 'new' | 'used' = 'new') => apply({ view: 'inventory', inventoryTab: tab }),
@@ -178,6 +196,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const navigateRoute = useCallback(
     (key: string) => {
       if (key === 'shop') goShop();
+      else if (key === 'discover') goDiscover();
+      else if (key === 'energy') goEnergy();
+      else if (key === 'charging-hub' || key === 'charging-menu') goChargingHub();
       else if (key === 'compare') goCompare();
       else if (key === 'inventory') goInventory('new');
       else if (key === 'trade-in') goTradeIn();
@@ -187,13 +208,38 @@ export function NavProvider({ children }: { children: ReactNode }) {
       else if (getById(key)) goProduct(key);
       else goHome();
     },
-    [goCompare, goDesign, goHome, goInventory, goOffers, goProduct, goShop, goTradeIn, goTrip],
+    [
+      goChargingHub,
+      goCompare,
+      goDesign,
+      goDiscover,
+      goEnergy,
+      goHome,
+      goInventory,
+      goOffers,
+      goProduct,
+      goShop,
+      goTradeIn,
+      goTrip,
+    ],
   );
 
   const navigateFromSidebar = useCallback(
     (label: string) => {
       if (label === 'Shop') {
         goShop();
+        return;
+      }
+      if (label === 'Discover') {
+        goDiscover();
+        return;
+      }
+      if (label === 'Energy' || label === 'All Energy') {
+        goEnergy();
+        return;
+      }
+      if (label === 'All Charging' || label === 'Charging Overview') {
+        goChargingHub();
         return;
       }
       const id = sidebarTargets[label];
@@ -207,7 +253,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
       }
       goProduct(id);
     },
-    [goHome, goProduct, goShop, navigateRoute],
+    [goChargingHub, goDiscover, goEnergy, goHome, goProduct, goShop, navigateRoute],
   );
 
   const confirmAction = useCallback((label: string, productName?: string) => {
@@ -223,6 +269,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
       product,
       goHome,
       goShop,
+      goDiscover,
+      goEnergy,
+      goChargingHub,
       goProduct,
       goContent,
       goCompare,
@@ -241,6 +290,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
       product,
       goHome,
       goShop,
+      goDiscover,
+      goEnergy,
+      goChargingHub,
       goProduct,
       goContent,
       goCompare,

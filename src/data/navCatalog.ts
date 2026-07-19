@@ -1,4 +1,5 @@
 import { images } from '../assets/images';
+import { HUB_ROUTES } from '../lib/routes';
 
 export type CatalogCategory = 'vehicles' | 'energy' | 'charging' | 'discover' | 'shop' | 'other';
 
@@ -425,16 +426,23 @@ export const sidebarTargets: Record<string, string> = {
   Careers: 'support',
   'Find Us': 'demo-drive',
   Shop: 'shop',
+  Discover: 'discover',
+  Energy: 'energy',
+  'All Energy': 'energy',
+  'All Charging': 'charging-hub',
+  'Charging Overview': 'charging-hub',
   'Find a Store': 'demo-drive',
 };
 
-/** Route keys handled by NavContext special views */
-export const specialRoutes = new Set([
-  'shop',
-  'compare',
-  'inventory',
-  'trade-in',
-  'design',
-  'offers',
-  'trip',
-]);
+/** Hash routes handled outside product catalog */
+export const specialRoutes = HUB_ROUTES;
+
+/** Primary vehicles shown in mega-menu grid (sidebar keeps full list) */
+export const primaryVehicleIds = [
+  'model-s',
+  'model-3',
+  'model-y',
+  'model-x',
+  'cybertruck',
+  'model-y-l',
+] as const;

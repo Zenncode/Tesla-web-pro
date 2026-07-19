@@ -38,7 +38,18 @@ export function DesignPage() {
   const [autopilot, setAutopilot] = useState(true);
   const [fsd, setFsd] = useState(false);
 
-  const base = vehicleId === 'cybertruck' ? 69990 : vehicleId.includes('y') ? 44990 : 42490;
+  const base =
+    vehicleId === 'cybertruck'
+      ? 69990
+      : vehicleId === 'model-y-l'
+        ? 61990
+        : vehicleId === 'model-s'
+          ? 74990
+          : vehicleId === 'model-x'
+            ? 79990
+            : vehicleId.includes('y')
+              ? 44990
+              : 42490;
   const total = base + (fsd ? 8000 : 0) + (autopilot ? 0 : 0) + paints.indexOf(paint) * 1000;
 
   return (

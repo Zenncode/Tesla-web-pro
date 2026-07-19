@@ -6,11 +6,22 @@ interface EnergyHeroProps {
   name: string;
   tagline?: string;
   id?: string;
+  primaryLabel?: string;
+  secondaryLabel?: string;
   onOrder?: () => void;
   onLearn?: () => void;
 }
 
-export function EnergyHero({ image, name, tagline, id, onOrder, onLearn }: EnergyHeroProps) {
+export function EnergyHero({
+  image,
+  name,
+  tagline,
+  id,
+  primaryLabel = 'Order Now',
+  secondaryLabel = 'Learn More',
+  onOrder,
+  onLearn,
+}: EnergyHeroProps) {
   return (
     <section
       id={id}
@@ -36,7 +47,13 @@ export function EnergyHero({ image, name, tagline, id, onOrder, onLearn }: Energ
         </p>
       )}
       <div style={{ marginTop: 'var(--space-24)' }}>
-        <CTAButtonGroup onHero onPrimary={onOrder} onSecondary={onLearn} />
+        <CTAButtonGroup
+          onHero
+          primaryLabel={primaryLabel}
+          secondaryLabel={secondaryLabel}
+          onPrimary={onOrder}
+          onSecondary={onLearn}
+        />
       </div>
     </section>
   );

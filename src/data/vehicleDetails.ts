@@ -1,42 +1,39 @@
 import { images } from '../assets/images';
+import type {
+  ContentBlock,
+  CompareCard,
+  ListSection,
+  SpecGroup,
+  SpecRow,
+  Stat,
+} from './types';
 
-export type VehicleStat = { value: string; label: string; note?: string };
-
-export type ContentBlock = {
-  title: string;
-  body: string;
-  image?: string;
-};
-
-export type TrimCompare = {
-  name: string;
-  stats: VehicleStat[];
-  blurb: string;
-};
-
-export type SpecRow = { label: string; value: string };
+/** @deprecated Prefer Stat from ./types */
+export type VehicleStat = Stat;
+export type { ContentBlock, SpecRow, SpecGroup, Stat };
+export type TrimCompare = CompareCard;
 
 export type VehicleDetail = {
   id: string;
   name: string;
   tagline: string;
   heroImage: string;
-  heroStats: VehicleStat[];
+  heroStats: Stat[];
   notice?: string;
   signature?: { title: string; body: string };
   interior: ContentBlock[];
   autonomy?: ContentBlock;
   powertrain?: ContentBlock;
-  trims?: TrimCompare[];
+  trims?: CompareCard[];
   designPoints?: ContentBlock[];
   goAnywhere?: {
     title: string;
     body: string;
-    stats: VehicleStat[];
+    stats: Stat[];
   };
   chargeHome?: ContentBlock;
-  safety?: ContentBlock & { bullets?: string[] };
-  specs?: { trim: string; rows: SpecRow[] }[];
+  safety?: ListSection;
+  specs?: SpecGroup[];
   footnotes?: string[];
   primaryCta: string;
   secondaryCta: string;
@@ -351,6 +348,31 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
           'A longer wheelbase adds a third row and six-seat flexibility for growing households and longer trips.',
         image: images.modelY2,
       },
+      {
+        title: 'More Room to Stretch',
+        body:
+          'Extra length improves second- and third-row comfort so adults and kids can settle in for highway miles.',
+        image: images.modelYAlt,
+      },
+      {
+        title: 'Family Cargo Flexibility',
+        body:
+          'Configure seats and storage for sports gear, strollers and weekend luggage without giving up electric efficiency.',
+      },
+    ],
+    designPoints: [
+      {
+        title: 'Long Wheelbase',
+        body: 'Stretched proportions create third-row access while keeping a Model Y driving character.',
+      },
+      {
+        title: 'Premium Launch',
+        body: 'Launch Series positioning at $61,990 with demo marketing benefits subject to change.',
+      },
+      {
+        title: 'Same Ecosystem',
+        body: 'Supercharging, app ownership and home charging match the rest of the Tesla lineup.',
+      },
     ],
     goAnywhere: {
       title: 'Built for the Family',
@@ -358,6 +380,7 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
       stats: [
         { value: '6', label: 'Seats' },
         { value: '3', label: 'Rows' },
+        { value: '$61,990', label: 'Starting at' },
       ],
     },
     chargeHome: {
@@ -365,6 +388,21 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
       body: 'Charge overnight and start every day with range ready for school runs and weekend trips.',
       image: images.homeCharging,
     },
+    safety: {
+      title: 'Safety for Every Row',
+      body: 'Designed to protect occupants across three rows with structural integrity and active safety assists.',
+    },
+    specs: [
+      {
+        trim: 'Model Y L Premium',
+        rows: [
+          { label: 'Starting price', value: '$61,990' },
+          { label: 'Seating', value: '6 (3 rows)' },
+          { label: 'Body', value: 'Long-wheelbase midsize SUV' },
+          { label: 'Powertrain', value: 'All-electric' },
+        ],
+      },
+    ],
     primaryCta: 'Order Now',
     secondaryCta: 'Learn More',
   },
@@ -391,6 +429,16 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
           'Up to six or seven seats, panoramic visibility and a high-tech dual-screen cabin experience.',
         image: images.modelX,
       },
+      {
+        title: 'Falcon Wing Doors',
+        body:
+          'Iconic doors open upward for easier access in tight parking spots and a dramatic presence at every arrival.',
+      },
+      {
+        title: 'Family Ready',
+        body:
+          'Flexible seating, generous cargo volume and a calm second-row experience make long trips more comfortable.',
+      },
     ],
     autonomy: {
       title: 'Assisted Driving',
@@ -398,11 +446,31 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
         'Full Self-Driving (Supervised) features help manage more of the drive under your active supervision.',
       image: images.fsd,
     },
+    powertrain: {
+      title: 'Dual & Tri-Motor Options',
+      body:
+        'All-wheel drive performance with rapid acceleration and confident handling in varied conditions.',
+    },
+    designPoints: [
+      {
+        title: 'Commanding Stance',
+        body: 'Elevated seating position with a sleek SUV silhouette and panoramic glass.',
+      },
+      {
+        title: 'Everyday Luxury',
+        body: 'Premium materials, powerful audio and a dual-display digital cabin.',
+      },
+      {
+        title: 'Towing Capable',
+        body: 'Support for family adventures and utility when you need extra capacity.',
+      },
+    ],
     goAnywhere: {
       title: 'Go Anywhere',
       body: 'Long range and Supercharging keep family trips simple.',
       stats: [
         { value: '335', label: 'mi Range (EPA est.)' },
+        { value: '15', label: 'min Fast top-ups' },
         { value: '80,000+', label: 'Global Superchargers' },
       ],
     },
@@ -414,7 +482,24 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
     safety: {
       title: 'Safety Comes Standard',
       body: 'Engineered with a stiff body structure and active safety features as standard.',
+      bullets: [
+        'Rigid passenger compartment design',
+        'Multiple airbags and impact structures',
+        'Active safety and camera-based assists',
+      ],
     },
+    specs: [
+      {
+        trim: 'Model X',
+        rows: [
+          { label: 'Range (EPA est.)', value: 'Up to 335 mi' },
+          { label: 'Acceleration', value: 'As quick as 2.5 s 0-60' },
+          { label: 'Seating', value: '6 or 7' },
+          { label: 'Doors', value: 'Falcon Wing' },
+          { label: 'Drive', value: 'AWD' },
+        ],
+      },
+    ],
     primaryCta: 'Browse Inventory',
     secondaryCta: 'Get an Estimate',
   },
@@ -441,6 +526,35 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
           'A minimalist, rugged interior with a large touchscreen and adaptable storage for work and adventure.',
         image: images.cybertruck,
       },
+      {
+        title: 'Adaptive Air Suspension',
+        body:
+          'Raise and lower for rough roads, loading and highway efficiency. Built to handle job sites and weekend trails.',
+      },
+      {
+        title: 'Powerful Towing',
+        body:
+          'Serious towing capacity with trailer profiles and stability features that help keep heavy loads under control.',
+      },
+    ],
+    powertrain: {
+      title: 'Electric Muscle',
+      body:
+        'Instant torque, multiple drive configurations and structural battery packaging deliver utility without a gas engine.',
+    },
+    designPoints: [
+      {
+        title: 'Exoskeleton',
+        body: 'Ultra-hard stainless exterior is designed for toughness and a distinctive silhouette.',
+      },
+      {
+        title: 'Vault Bed',
+        body: 'Covered bed storage protects gear from weather while keeping the profile low and secure.',
+      },
+      {
+        title: 'Steer-by-Wire Feel',
+        body: 'Precise steering response tuned for a truck that still feels agile on pavement.',
+      },
     ],
     goAnywhere: {
       title: 'Built for Work and Play',
@@ -448,6 +562,7 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
       stats: [
         { value: '11,000', label: 'lbs Towing' },
         { value: '80,000+', label: 'Global Superchargers' },
+        { value: 'Vault', label: 'Secure bed storage' },
       ],
     },
     chargeHome: {
@@ -455,8 +570,249 @@ export const vehicleDetails: Record<string, VehicleDetail> = {
       body: 'Charge overnight so the truck is ready when you are.',
       image: images.homeCharging,
     },
+    safety: {
+      title: 'Safety Comes Standard',
+      body: 'Rigid structure, active safety features and camera-based visibility aids support confident driving.',
+      bullets: [
+        'Structural exoskeleton design philosophy',
+        'Active safety and collision avoidance assists',
+        'Camera coverage for parking and awareness',
+      ],
+    },
+    specs: [
+      {
+        trim: 'Cybertruck',
+        rows: [
+          { label: 'Type', value: 'Electric utility truck' },
+          { label: 'Range (est.)', value: 'Up to ~340 mi' },
+          { label: '0–60 mph', value: 'As quick as 2.6 s' },
+          { label: 'Towing', value: 'Up to 11,000 lbs' },
+          { label: 'Seating', value: '5' },
+        ],
+      },
+    ],
+    footnotes: ['Capability figures are illustrative demo values and vary by configuration.'],
     primaryCta: 'Order Now',
     secondaryCta: 'Browse Inventory',
+  },
+
+  semi: {
+    id: 'semi',
+    name: 'Semi',
+    tagline: 'Electric Freight',
+    heroImage: images.cybertruck,
+    heroStats: [
+      { value: 'Freight', label: 'Class focus' },
+      { value: 'High', label: 'Efficiency' },
+      { value: 'Fleet', label: 'Ready' },
+    ],
+    signature: {
+      title: 'Built for the Long Haul',
+      body:
+        'Tesla Semi is designed for efficiency, safety and reliability for freight and fleet operators moving goods without diesel.',
+    },
+    interior: [
+      {
+        title: 'Driver-Centric Cabin',
+        body:
+          'A modern cockpit with high visibility and digital tools that help professional drivers stay focused on the road.',
+        image: images.cybertruck,
+      },
+      {
+        title: 'Fleet Operations',
+        body:
+          'Designed with depot charging, route planning and uptime in mind for commercial logistics teams.',
+      },
+    ],
+    designPoints: [
+      {
+        title: 'Efficiency First',
+        body: 'Aerodynamics and electric drivetrain aim to cut energy cost per mile versus diesel peers.',
+      },
+      {
+        title: 'Safety Focus',
+        body: 'Structural design and assisted systems support safer freight operations.',
+      },
+      {
+        title: 'Network Charging',
+        body: 'Megawatt-class charging concepts for depots and corridors (demo narrative).',
+      },
+    ],
+    goAnywhere: {
+      title: 'Move More With Less Waste',
+      body: 'Electric freight reduces local emissions at hubs and can lower energy spend for high-mileage routes.',
+      stats: [
+        { value: 'EV', label: 'Powertrain' },
+        { value: 'Depot', label: 'Charge focus' },
+        { value: 'Fleet', label: 'Tooling' },
+      ],
+    },
+    primaryCta: 'Learn More',
+    secondaryCta: 'Reserve',
+    footnotes: ['Semi availability and specs are region- and program-dependent. Demo page only.'],
+  },
+
+  roadster: {
+    id: 'roadster',
+    name: 'Roadster',
+    tagline: 'Upcoming Performance',
+    heroImage: images.modelSMain,
+    heroStats: [
+      { value: 'Upcoming', label: 'Status' },
+      { value: 'Extreme', label: 'Performance' },
+      { value: 'Long', label: 'Range aim' },
+    ],
+    signature: {
+      title: 'The Next Roadster',
+      body:
+        'Tesla’s upcoming sports car is designed for extreme performance and long-range electric thrills—reserve interest while development continues.',
+    },
+    interior: [
+      {
+        title: 'Driver Focus',
+        body:
+          'A low, performance-oriented cabin concept built around immediacy: steering, pedals, screens and sound.',
+        image: images.modelS,
+      },
+      {
+        title: 'Everyday Usable',
+        body:
+          'Sports car presence with the practicality goals of long range and modern software features.',
+      },
+    ],
+    designPoints: [
+      {
+        title: 'Acceleration',
+        body: 'Engineered for blistering 0–60 performance targets shared in public materials.',
+      },
+      {
+        title: 'Range Ambition',
+        body: 'Long-range electric touring capability remains a core design goal.',
+      },
+      {
+        title: 'Reserve Interest',
+        body: 'Join the waitlist narrative in this demo—no real reservation is placed.',
+      },
+    ],
+    primaryCta: 'Reserve',
+    secondaryCta: 'Learn More',
+    footnotes: ['Roadster timing and final specs are subject to change. Demo marketing only.'],
+  },
+
+  robotaxi: {
+    id: 'robotaxi',
+    name: 'Robotaxi',
+    tagline: 'Autonomous Ride Vision',
+    heroImage: images.fsd,
+    heroStats: [
+      { value: 'AI', label: 'Driven' },
+      { value: 'Ride', label: 'Network vision' },
+      { value: 'Future', label: 'Mobility' },
+    ],
+    signature: {
+      title: 'Autonomy as a Service',
+      body:
+        'Robotaxi represents Tesla’s vision for autonomous ride-hailing as supervised autonomy technology progresses. This page is a conceptual demo.',
+    },
+    interior: [
+      {
+        title: 'Passenger Space',
+        body:
+          'Purpose-built for riding, not driving—comfortable seating and a cabin focused on the journey.',
+        image: images.fsd,
+      },
+      {
+        title: 'Network Effects',
+        body:
+          'A fleet vision where vehicles serve more hours of the day, reducing cost per mile over time.',
+      },
+    ],
+    autonomy: {
+      title: 'From Assisted to Autonomous',
+      body:
+        'Progress in Full Self-Driving (Supervised) informs the longer roadmap toward unsupervised robotaxi operation—subject to regulation and validation.',
+      image: images.fsd,
+    },
+    designPoints: [
+      {
+        title: 'Safety First',
+        body: 'Any autonomous product must meet rigorous safety and regulatory bars.',
+      },
+      {
+        title: 'Software Defined',
+        body: 'Continuous improvement through data and model training is central to the vision.',
+      },
+      {
+        title: 'Stay Updated',
+        body: 'Follow product announcements for real program milestones beyond this demo.',
+      },
+    ],
+    primaryCta: 'Learn More',
+    secondaryCta: 'Stay Updated',
+    footnotes: ['Robotaxi is aspirational marketing in this demo—not a consumer product order page.'],
+  },
+
+  fleet: {
+    id: 'fleet',
+    name: 'Fleet',
+    tagline: 'Tesla for Business',
+    heroImage: images.modelYAlt,
+    heroStats: [
+      { value: 'Vehicles', label: 'Cars & trucks' },
+      { value: 'Charge', label: 'Solutions' },
+      { value: 'Energy', label: 'For sites' },
+    ],
+    signature: {
+      title: 'Electrify Your Business',
+      body:
+        'Tesla for Business covers vehicles, charging and energy solutions for fleets and commercial customers—from sales teams to logistics hubs.',
+    },
+    interior: [
+      {
+        title: 'Vehicle Lines',
+        body:
+          'Model 3, Model Y, Cybertruck and more for sales, service, executive and utility roles.',
+        image: images.modelY,
+      },
+      {
+        title: 'Workplace Charging',
+        body:
+          'Wall Connectors and site planning help employees and fleets charge where they park.',
+        image: images.homeCharging,
+      },
+      {
+        title: 'Energy at Scale',
+        body:
+          'Powerwall and Megapack options support facilities, resilience and renewable integration.',
+        image: images.powerwall,
+      },
+    ],
+    designPoints: [
+      {
+        title: 'Lower Operating Cost',
+        body: 'Electric drivetrains can reduce fuel and maintenance spend on high-mileage routes.',
+      },
+      {
+        title: 'Brand & Talent',
+        body: 'Modern EV fleets support sustainability goals and employee experience.',
+      },
+      {
+        title: 'One Ecosystem',
+        body: 'Vehicles, charging hardware and energy storage under coordinated support.',
+      },
+    ],
+    goAnywhere: {
+      title: 'Deploy With Confidence',
+      body: 'From pilot programs to full fleet conversion—plan vehicles, chargers and energy together.',
+      stats: [
+        { value: 'Pilot', label: 'Start small' },
+        { value: 'Scale', label: 'Multi-site' },
+        { value: 'Support', label: 'Business team' },
+      ],
+    },
+    primaryCta: 'Contact Sales',
+    secondaryCta: 'Learn More',
+    footnotes: ['Fleet programs vary by region. Demo contact flow only.'],
   },
 };
 

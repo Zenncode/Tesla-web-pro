@@ -1,6 +1,7 @@
 import { TeslaLogo } from '../atoms/TeslaLogo';
 import { useNav } from '../../app/NavContext';
 import { useToast } from '../../app/ToastContext';
+import { HUB_ROUTES } from '../../lib/routes';
 
 const columns = [
   {
@@ -12,11 +13,13 @@ const columns = [
       { label: 'Model X', action: 'model-x' },
       { label: 'Cybertruck', action: 'cybertruck' },
       { label: 'Inventory', action: 'inventory' },
+      { label: 'Compare', action: 'compare' },
     ],
   },
   {
     title: 'Energy',
     links: [
+      { label: 'Energy Hub', action: 'energy' },
       { label: 'Solar Panels', action: 'solar-panels' },
       { label: 'Solar Roof', action: 'solar-roof' },
       { label: 'Powerwall', action: 'powerwall' },
@@ -26,21 +29,29 @@ const columns = [
   {
     title: 'Charging',
     links: [
-      { label: 'Charging', action: 'charging' },
+      { label: 'Charging Hub', action: 'charging-hub' },
       { label: 'Home Charging', action: 'home-charging' },
       { label: 'Supercharger', action: 'supercharger' },
       { label: 'Trip Planner', action: 'trip' },
     ],
   },
   {
-    title: 'About',
+    title: 'Discover',
+    links: [
+      { label: 'Discover', action: 'discover' },
+      { label: 'Demo Drive', action: 'demo-drive' },
+      { label: 'Insurance', action: 'insurance' },
+      { label: 'Events', action: 'events' },
+      { label: 'Support', action: 'support' },
+    ],
+  },
+  {
+    title: 'Shop & More',
     links: [
       { label: 'Shop', action: 'shop' },
-      { label: 'Compare', action: 'compare' },
       { label: 'Trade-in', action: 'trade-in' },
       { label: 'Current Offers', action: 'offers' },
-      { label: 'Support', action: 'support' },
-      { label: 'Demo Drive', action: 'demo-drive' },
+      { label: 'Design', action: 'design' },
     ],
   },
 ];
@@ -63,11 +74,8 @@ export function Footer() {
   const go = (action: string) => {
     notify(action);
     if (action === 'home') goHome();
-    else if (['shop', 'compare', 'inventory', 'trade-in', 'offers', 'trip', 'design'].includes(action)) {
-      navigateRoute(action);
-    } else {
-      goProduct(action);
-    }
+    else if (HUB_ROUTES.has(action)) navigateRoute(action);
+    else goProduct(action);
   };
 
   return (
@@ -110,7 +118,16 @@ export function Footer() {
               >
                 {col.title}
               </h3>
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <ul
+                style={{
+                  listStyle: 'none',
+                  margin: 0,
+                  padding: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <button
@@ -171,7 +188,8 @@ export function Footer() {
             lineHeight: 1.5,
           }}
         >
-          Price and feature availability subject to change. This is an educational UI demo, not affiliated with Tesla, Inc.
+          Price and feature availability subject to change. This is an educational UI demo, not
+          affiliated with Tesla, Inc.
         </p>
       </div>
     </footer>

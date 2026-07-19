@@ -7,145 +7,41 @@ import { ProductCard } from '../molecules/ProductCard';
 import { TeslaLogo } from '../atoms/TeslaLogo';
 import { useNav } from '../../app/NavContext';
 import { useToast } from '../../app/ToastContext';
-import { getByCategory, type CatalogItem } from '../../data/navCatalog';
-
-type ActiveDropdown = 'Vehicles' | 'Energy' | 'Charging' | 'Discover' | 'Shop' | null;
-type IconMenu = 'help' | 'region' | 'account' | null;
-
-const navItems = ['Vehicles', 'Energy', 'Charging', 'Discover', 'Shop'] as const;
-
-const sidebarLinks: Record<string, string[]> = {
-  Vehicles: [
-    'Inventory',
-    'Used Inventory',
-    'Demo Drive',
-    'Trade-in',
-    'Compare',
-    'Help Me Choose',
-    'Fleet',
-    'Semi',
-    'Roadster',
-    'Robotaxi',
-    'Full Self-Driving (Supervised)',
-    'Current Offers',
-  ],
-  Energy: [
-    'Schedule a Consultation',
-    'Why Solar',
-    'Incentives',
-    'Support',
-    'Partner with Tesla',
-  ],
-  Charging: [
-    'Find a Supercharger',
-    'Trip Planner',
-    'Charging Calculator',
-    'Supercharging',
-    'Help',
-  ],
-  Discover: ['Support', 'About', 'Careers', 'Find Us'],
-  Shop: ['Shop', 'Find a Store'],
-};
-
-const helpLinks = [
-  'Support',
-  'Get Help',
-  'Schedule a Demo Drive',
-  'Find Us',
-  'Careers',
-  'Contact',
-];
-
-const regions = [
-  { region: 'North America', items: ['United States', 'Canada', 'México'] },
-  { region: 'Europe', items: ['United Kingdom', 'Deutschland', 'France', 'Italia', 'España'] },
-  { region: 'Asia Pacific', items: ['中国大陆', '香港', '台灣', '日本', 'Australia'] },
-  { region: 'Middle East', items: ['ישראל', 'UAE'] },
-];
-
-const categoryMap: Record<Exclude<ActiveDropdown, null>, CatalogItem['category'] | 'vehicles'> = {
-  Vehicles: 'vehicles',
-  Energy: 'energy',
-  Charging: 'charging',
-  Discover: 'discover',
-  Shop: 'shop',
-};
-
-const primaryLabelFor = (item: CatalogItem) => {
-  if (item.category === 'shop') return 'Shop';
-  if (item.category === 'discover') return 'Explore';
-  if (item.category === 'charging') return 'View';
-  return 'Order';
-};
-
-const iconPanelStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 'calc(100% + 8px)',
-  right: 0,
-  minWidth: 260,
-  maxWidth: 'min(360px, calc(100vw - 24px))',
-  maxHeight: 'min(70vh, 420px)',
-  overflowY: 'auto',
-  background: 'var(--color-pure-white)',
-  borderRadius: 'var(--radius-card)',
-  border: '1px solid var(--color-cloud-gray)',
-  padding: '12px 0',
-  zIndex: 120,
-  animation: 'tds-slide-down var(--transition-base) var(--ease-tesla)',
-  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-};
-
-const panelTitleStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-text)',
-  fontSize: 12,
-  fontWeight: 500,
-  color: 'var(--color-pewter)',
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase' as const,
-  padding: '8px 20px 10px',
-};
-
-const panelLinkStyle: React.CSSProperties = {
-  display: 'block',
-  width: '100%',
-  textAlign: 'left' as const,
-  fontFamily: 'var(--font-text)',
-  fontSize: 14,
-  fontWeight: 500,
-  color: 'var(--color-carbon-dark)',
-  padding: '12px 20px',
-  cursor: 'pointer',
-  transition: 'background-color var(--transition-base)',
-  background: 'none',
-  border: 'none',
-};
+import {
+  getByCategory,
+  getById,
+  primaryVehicleIds,
+  type CatalogItem,
+} from '../../data/navCatalog';
+import {
+  CATEGORY_MAP,
+  HELP_LINKS,
+  NAV_ITEMS,
+  REGIONS,
+  SIDEBAR_LINKS,
+  primaryLabelFor,
+  type ActiveDropdown,
+  type IconMenu,
+} from './navigation/navConfig';
+import { useNavUi } from './navigation/useNavUi';
 
 export function Navigation() {
-  const { goHome, goShop, goProduct, navigateFromSidebar } = useNav();
+  const { goHome, goShop, goDiscover, goEnergy, goChargingHub, goProduct, navigateFromSidebar } =
+    useNav();
   const { notify } = useToast();
-  const [active, setActive] = useState<ActiveDropdown>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [iconMenu, setIconMenu] = useState<IconMenu>(null);
+  const {
+    active,
+    mobileOpen,
+    setMobileOpen,
+    iconMenu,
+    setIconMenu,
+    closeAll,
+    toggle,
+    toggleIcon,
+  } = useNavUi();
   const [region, setRegion] = useState('United States');
   const [signedIn, setSignedIn] = useState(false);
   const iconBarRef = useRef<HTMLDivElement>(null);
-
-  const toggle = (item: string) => {
-    setIconMenu(null);
-    setActive(active === item ? null : (item as ActiveDropdown));
-  };
-
-  const toggleIcon = (menu: IconMenu) => {
-    setActive(null);
-    setMobileOpen(false);
-    setIconMenu((prev) => (prev === menu ? null : menu));
-  };
-
-  const closeAll = () => {
-    setActive(null);
-    setMobileOpen(false);
-    setIconMenu(null);
-  };
 
   const openProduct = (id: string, focus?: 'order' | 'learn', label?: string) => {
     closeAll();
@@ -153,13 +49,15 @@ export function Navigation() {
     goProduct(id, focus);
   };
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeAll();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  const handleSidebar = (label: string) => {
+    closeAll();
+    notify(label);
+    if (label === 'Shop') goShop();
+    else if (label === 'Discover') goDiscover();
+    else if (label === 'All Energy') goEnergy();
+    else if (label === 'All Charging') goChargingHub();
+    else navigateFromSidebar(label);
+  };
 
   useEffect(() => {
     if (!iconMenu) return;
@@ -170,36 +68,22 @@ export function Navigation() {
     };
     document.addEventListener('mousedown', onPointer);
     return () => document.removeEventListener('mousedown', onPointer);
-  }, [iconMenu]);
+  }, [iconMenu, setIconMenu]);
 
-  useEffect(() => {
-    document.body.style.overflow = mobileOpen || active ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileOpen, active]);
-
-  const iconButtons: { id: IconMenu; icon: IconName; label: string }[] = [
-    { id: 'help', icon: 'help', label: 'Support' },
-    { id: 'region', icon: 'globe', label: 'Language and region' },
-    { id: 'account', icon: 'account', label: 'Account' },
-  ];
-
-  const catalogFor = (menu: Exclude<ActiveDropdown, null>) =>
-    getByCategory(categoryMap[menu] as CatalogItem['category']);
+  const catalogFor = (menu: Exclude<ActiveDropdown, null>) => {
+    if (menu === 'Vehicles') {
+      return primaryVehicleIds
+        .map((id) => getById(id))
+        .filter((x): x is CatalogItem => Boolean(x));
+    }
+    return getByCategory(CATEGORY_MAP[menu]);
+  };
 
   const renderMegaCards = (menu: Exclude<ActiveDropdown, null>) => {
     const items = catalogFor(menu);
     if (menu === 'Vehicles') {
       return (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 28,
-            maxWidth: 920,
-          }}
-        >
+        <div className="tds-mega-vehicles">
           {items.map((v) => (
             <VehicleCard
               key={v.id}
@@ -215,14 +99,7 @@ export function Navigation() {
     }
 
     return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: 24,
-          maxWidth: menu === 'Discover' ? 900 : 720,
-        }}
-      >
+      <div className={`tds-mega-products ${menu === 'Discover' ? 'is-wide' : ''}`}>
         {items.map((item) => (
           <ProductCard
             key={item.id}
@@ -247,15 +124,14 @@ export function Navigation() {
 
     if (iconMenu === 'help') {
       return (
-        <div className="tds-icon-panel" role="menu" aria-label="Support" style={iconPanelStyle}>
-          <div style={panelTitleStyle}>Support</div>
-          {helpLinks.map((label) => (
+        <div className="tds-icon-panel" role="menu" aria-label="Support">
+          <div className="tds-panel-title">Support</div>
+          {HELP_LINKS.map((label) => (
             <button
               key={label}
               type="button"
               role="menuitem"
-              className="tds-icon-panel-item"
-              style={panelLinkStyle}
+              className="tds-icon-panel-item tds-panel-link"
               onClick={() => {
                 closeAll();
                 if (label.includes('Demo')) {
@@ -276,27 +152,20 @@ export function Navigation() {
 
     if (iconMenu === 'region') {
       return (
-        <div className="tds-icon-panel" role="menu" aria-label="Select region" style={iconPanelStyle}>
-          <div style={panelTitleStyle}>Select Region</div>
-          <p style={{ fontFamily: 'var(--font-text)', fontSize: 13, color: 'var(--color-pewter)', padding: '0 20px 12px', margin: 0 }}>
-            Current: <strong style={{ color: 'var(--color-carbon-dark)', fontWeight: 500 }}>{region}</strong>
+        <div className="tds-icon-panel" role="menu" aria-label="Select region">
+          <div className="tds-panel-title">Select Region</div>
+          <p className="tds-panel-current">
+            Current: <strong>{region}</strong>
           </p>
-          {regions.map((group) => (
-            <div key={group.region} style={{ marginBottom: 8 }}>
-              <div style={{ ...panelTitleStyle, paddingTop: 12, borderTop: '1px solid var(--color-cloud-gray)' }}>
-                {group.region}
-              </div>
+          {REGIONS.map((group) => (
+            <div key={group.region} className="tds-region-group">
+              <div className="tds-panel-title tds-panel-title-border">{group.region}</div>
               {group.items.map((item) => (
                 <button
                   key={item}
                   type="button"
                   role="menuitem"
-                  className="tds-icon-panel-item"
-                  style={{
-                    ...panelLinkStyle,
-                    fontWeight: item === region ? 500 : 400,
-                    color: item === region ? 'var(--color-electric-blue)' : 'var(--color-carbon-dark)',
-                  }}
+                  className={`tds-icon-panel-item tds-panel-link ${item === region ? 'is-selected' : ''}`}
                   onClick={() => {
                     setRegion(item);
                     setIconMenu(null);
@@ -314,15 +183,14 @@ export function Navigation() {
     }
 
     return (
-      <div className="tds-icon-panel" role="menu" aria-label="Account" style={iconPanelStyle}>
-        <div style={panelTitleStyle}>Account</div>
+      <div className="tds-icon-panel" role="menu" aria-label="Account">
+        <div className="tds-panel-title">Account</div>
         {!signedIn ? (
           <>
             <button
               type="button"
               role="menuitem"
-              className="tds-icon-panel-item"
-              style={panelLinkStyle}
+              className="tds-icon-panel-item tds-panel-link"
               onClick={() => {
                 setSignedIn(true);
                 setIconMenu(null);
@@ -334,8 +202,7 @@ export function Navigation() {
             <button
               type="button"
               role="menuitem"
-              className="tds-icon-panel-item"
-              style={panelLinkStyle}
+              className="tds-icon-panel-item tds-panel-link"
               onClick={() => {
                 setSignedIn(true);
                 setIconMenu(null);
@@ -347,34 +214,29 @@ export function Navigation() {
           </>
         ) : (
           <>
-            {['Account', 'Order History', 'Profile Settings'].map((label) => (
-              <button
-                key={label}
-                type="button"
-                role="menuitem"
-                className="tds-icon-panel-item"
-                style={panelLinkStyle}
-                onClick={() => {
-                  setIconMenu(null);
-                  notify(label);
-                  goProduct('support', 'learn');
-                }}
-              >
-                {label}
-              </button>
-            ))}
+            <p className="tds-panel-current">Signed in (demo)</p>
             <button
               type="button"
               role="menuitem"
-              className="tds-icon-panel-item"
-              style={panelLinkStyle}
+              className="tds-icon-panel-item tds-panel-link"
+              onClick={() => {
+                notify('Orders (demo)');
+                setIconMenu(null);
+              }}
+            >
+              Orders
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="tds-icon-panel-item tds-panel-link"
               onClick={() => {
                 setSignedIn(false);
                 setIconMenu(null);
                 notify('Signed out');
               }}
             >
-              Logout
+              Sign Out
             </button>
           </>
         )}
@@ -382,12 +244,17 @@ export function Navigation() {
     );
   };
 
+  const iconButtons: { id: IconMenu; icon: IconName; label: string }[] = [
+    { id: 'help', icon: 'help', label: 'Support' },
+    { id: 'region', icon: 'globe', label: 'Language and region' },
+    { id: 'account', icon: 'account', label: 'Account' },
+  ];
+
   return (
     <>
-      <nav className="tds-nav">
+      <nav className="tds-nav" aria-label="Primary">
         <div className="tds-nav-inner">
           <TeslaLogo
-            width={118}
             onClick={() => {
               closeAll();
               notify('Home');
@@ -395,26 +262,16 @@ export function Navigation() {
             }}
           />
 
-          <div className="tds-desktop-only" style={{ alignItems: 'center', gap: 2 }}>
-            {navItems.map((item) => (
+          <div className="tds-nav-center tds-desktop-only">
+            {NAV_ITEMS.map((item) => (
               <div key={item} onClick={() => toggle(item)}>
                 <NavItem label={item} active={active === item} />
               </div>
             ))}
           </div>
 
-          <div
-            ref={iconBarRef}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              minWidth: 118,
-              justifyContent: 'flex-end',
-              position: 'relative',
-            }}
-          >
-            <div className="tds-desktop-only" style={{ alignItems: 'center', gap: 2, position: 'relative' }}>
+          <div ref={iconBarRef} className="tds-nav-icons">
+            <div className="tds-desktop-only tds-nav-icon-row">
               {iconButtons.map(({ id, icon, label }) => (
                 <button
                   key={id}
@@ -438,7 +295,6 @@ export function Navigation() {
               aria-expanded={mobileOpen}
               onClick={() => {
                 setMobileOpen((o) => !o);
-                setActive(null);
                 setIconMenu(null);
               }}
             >
@@ -448,52 +304,15 @@ export function Navigation() {
         </div>
 
         {active && (
-          <div
-            className="tds-mega"
-            style={{
-              position: 'absolute',
-              top: 'var(--nav-height)',
-              left: 0,
-              right: 0,
-              background: 'var(--color-pure-white)',
-              padding: '36px 48px 48px',
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 3fr) minmax(160px, 1fr)',
-              gap: 40,
-              zIndex: 99,
-              maxHeight: 'min(72vh, 620px)',
-              overflowY: 'auto',
-            }}
-          >
+          <div className="tds-mega">
             {renderMegaCards(active)}
-
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14,
-                paddingLeft: 28,
-                borderLeft: '1px solid var(--color-cloud-gray)',
-              }}
-            >
-              {(sidebarLinks[active] || []).map((label) => (
+            <div className="tds-mega-sidebar">
+              {(SIDEBAR_LINKS[active] || []).map((label) => (
                 <button
                   key={label}
                   type="button"
                   className="tds-link-sidebar"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    closeAll();
-                    notify(label);
-                    if (label === 'Shop') goShop();
-                    else navigateFromSidebar(label);
-                  }}
+                  onClick={() => handleSidebar(label)}
                 >
                   {label}
                 </button>
@@ -508,36 +327,9 @@ export function Navigation() {
       )}
 
       {mobileOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            top: 'var(--nav-height)',
-            zIndex: 95,
-            background: 'var(--color-pure-white)',
-            overflowY: 'auto',
-            padding: '12px 20px 48px',
-            animation: 'tds-slide-down var(--transition-base) var(--ease-tesla)',
-          }}
-        >
-          {navItems.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => toggle(item)}
-              style={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '18px 4px',
-                borderBottom: '1px solid var(--color-cloud-gray)',
-                fontFamily: 'var(--font-text)',
-                fontSize: 17,
-                fontWeight: 500,
-                color: 'var(--color-carbon-dark)',
-              }}
-            >
+        <div className="tds-mobile-drawer">
+          {NAV_ITEMS.map((item) => (
+            <button key={item} type="button" className="tds-mobile-nav-item" onClick={() => toggle(item)}>
               {item}
               <Icon
                 name={active === item ? 'chevron-down' : 'chevron-right'}
@@ -548,11 +340,9 @@ export function Navigation() {
           ))}
 
           {active && (
-            <div style={{ paddingTop: 24 }}>
-              <p style={{ fontFamily: 'var(--font-text)', fontSize: 13, fontWeight: 500, color: 'var(--color-pewter)', marginBottom: 16 }}>
-                {active}
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="tds-mobile-mega">
+              <p className="tds-panel-title">{active}</p>
+              <div className="tds-mobile-cards">
                 {catalogFor(active).map((item) => (
                   <ProductCard
                     key={item.id}
@@ -562,24 +352,20 @@ export function Navigation() {
                     primaryLabel={primaryLabelFor(item)}
                     secondaryLabel="Learn"
                     onSelect={() => openProduct(item.id, undefined, item.name)}
-                    onPrimary={() => openProduct(item.id, 'order', `${primaryLabelFor(item)} — ${item.name}`)}
+                    onPrimary={() =>
+                      openProduct(item.id, 'order', `${primaryLabelFor(item)} — ${item.name}`)
+                    }
                     onSecondary={() => openProduct(item.id, 'learn', `Learn — ${item.name}`)}
                   />
                 ))}
               </div>
-              <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {(sidebarLinks[active] || []).map((label) => (
+              <div className="tds-mobile-sidebar">
+                {(SIDEBAR_LINKS[active] || []).map((label) => (
                   <button
                     key={label}
                     type="button"
                     className="tds-link-sidebar"
-                    style={{ background: 'none', border: 'none', textAlign: 'left', padding: '8px 0', cursor: 'pointer' }}
-                    onClick={() => {
-                      closeAll();
-                      notify(label);
-                      if (label === 'Shop') goShop();
-                      else navigateFromSidebar(label);
-                    }}
+                    onClick={() => handleSidebar(label)}
                   >
                     {label}
                   </button>
@@ -588,109 +374,22 @@ export function Navigation() {
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 36, paddingTop: 16, borderTop: '1px solid var(--color-cloud-gray)' }}>
-            <p style={{ fontFamily: 'var(--font-text)', fontSize: 13, fontWeight: 500, color: 'var(--color-pewter)', marginBottom: 8 }}>
-              Quick links
-            </p>
+          <div className="tds-mobile-quick">
+            <p className="tds-panel-title">Quick links</p>
             {iconButtons.map(({ id, icon, label }) => (
               <button
                 key={id}
                 type="button"
+                className="tds-mobile-quick-item"
                 onClick={() => {
                   setMobileOpen(false);
                   setIconMenu(id);
                 }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '14px 4px',
-                  fontFamily: 'var(--font-text)',
-                  fontSize: 16,
-                  fontWeight: 500,
-                  color: 'var(--color-carbon-dark)',
-                }}
               >
-                <Icon name={icon} size={22} />
+                <Icon name={icon} size={20} />
                 {label}
               </button>
             ))}
-          </div>
-        </div>
-      )}
-
-      {iconMenu && !mobileOpen && (
-        <div
-          className="tds-mobile-only"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            top: 'var(--nav-height)',
-            zIndex: 110,
-            background: 'var(--color-pure-white)',
-            overflowY: 'auto',
-            padding: '16px 0 48px',
-            display: 'block',
-          }}
-        >
-          <div style={{ padding: '0 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 500, fontSize: 17, color: 'var(--color-carbon-dark)' }}>
-              {iconMenu === 'help' ? 'Support' : iconMenu === 'region' ? 'Region' : 'Account'}
-            </span>
-            <button type="button" className="tds-icon-btn" aria-label="Close" onClick={() => setIconMenu(null)}>
-              <Icon name="close" size={22} />
-            </button>
-          </div>
-          <div style={{ ...iconPanelStyle, position: 'static', boxShadow: 'none', border: 'none', maxHeight: 'none', width: '100%', maxWidth: 'none' }}>
-            {iconMenu === 'help' &&
-              helpLinks.map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  style={panelLinkStyle}
-                  onClick={() => {
-                    setIconMenu(null);
-                    if (label.includes('Demo')) goProduct('demo-drive');
-                    else goProduct('support');
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            {iconMenu === 'region' &&
-              regions.flatMap((g) =>
-                g.items.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    style={{
-                      ...panelLinkStyle,
-                      color: item === region ? 'var(--color-electric-blue)' : 'var(--color-carbon-dark)',
-                    }}
-                    onClick={() => {
-                      setRegion(item);
-                      setIconMenu(null);
-                    }}
-                  >
-                    {item}
-                    {item === region ? '  ✓' : ''}
-                  </button>
-                )),
-              )}
-            {iconMenu === 'account' &&
-              (!signedIn ? (
-                <>
-                  <button type="button" style={panelLinkStyle} onClick={() => { setSignedIn(true); setIconMenu(null); }}>Sign In</button>
-                  <button type="button" style={panelLinkStyle} onClick={() => setIconMenu(null)}>Create Account</button>
-                </>
-              ) : (
-                <>
-                  {['Account', 'Order History', 'Profile Settings'].map((l) => (
-                    <button key={l} type="button" style={panelLinkStyle} onClick={() => setIconMenu(null)}>{l}</button>
-                  ))}
-                  <button type="button" style={panelLinkStyle} onClick={() => { setSignedIn(false); setIconMenu(null); }}>Logout</button>
-                </>
-              ))}
           </div>
         </div>
       )}

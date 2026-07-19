@@ -6,29 +6,56 @@ import { ChatBar } from './components/organisms/ChatBar';
 import { Home } from './components/pages/Home';
 import { ProductPage } from './components/pages/ProductPage';
 import { ShopPage } from './components/pages/ShopPage';
+import { DiscoverPage } from './components/pages/DiscoverPage';
+import { CategoryHubPage } from './components/pages/CategoryHubPage';
 import { ComparePage } from './components/pages/ComparePage';
 import { InventoryPage } from './components/pages/InventoryPage';
 import { TradeInPage } from './components/pages/TradeInPage';
 import { DesignPage } from './components/pages/DesignPage';
 import { OffersPage } from './components/pages/OffersPage';
 import { TripPage } from './components/pages/TripPage';
+import { images } from './assets/images';
+
+const viewMap = {
+  home: () => <Home />,
+  product: () => <ProductPage />,
+  content: () => <ProductPage />,
+  shop: () => <ShopPage />,
+  discover: () => <DiscoverPage />,
+  energy: () => (
+    <CategoryHubPage
+      category="energy"
+      title="Energy"
+      subtitle="Solar, Solar Roof, Powerwall and Megapack — power your home and the grid."
+      heroImage={images.solar}
+      primaryLabel="Order"
+    />
+  ),
+  'charging-hub': () => (
+    <CategoryHubPage
+      category="charging"
+      title="Charging"
+      subtitle="Home charging, Superchargers and everything you need on the road."
+      heroImage={images.cardCharging}
+      primaryLabel="View"
+    />
+  ),
+  compare: () => <ComparePage />,
+  inventory: () => <InventoryPage />,
+  'trade-in': () => <TradeInPage />,
+  design: () => <DesignPage />,
+  offers: () => <OffersPage />,
+  trip: () => <TripPage />,
+} as const;
 
 function AppShell() {
   const { state } = useNav();
+  const View = viewMap[state.view] ?? viewMap.home;
 
   return (
-    <div style={{ minHeight: '100svh', background: 'var(--color-pure-white)', paddingBottom: 56 }}>
+    <div className="tds-app">
       <Navigation />
-      {state.view === 'home' && <Home />}
-      {state.view === 'product' && <ProductPage />}
-      {state.view === 'content' && <ProductPage />}
-      {state.view === 'shop' && <ShopPage />}
-      {state.view === 'compare' && <ComparePage />}
-      {state.view === 'inventory' && <InventoryPage />}
-      {state.view === 'trade-in' && <TradeInPage />}
-      {state.view === 'design' && <DesignPage />}
-      {state.view === 'offers' && <OffersPage />}
-      {state.view === 'trip' && <TripPage />}
+      <View />
       <Footer />
       <ChatBar />
     </div>

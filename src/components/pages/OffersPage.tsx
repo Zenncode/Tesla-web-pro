@@ -41,6 +41,24 @@ const offers = [
     image: images.fsd,
     cta: 'fsd',
   },
+  {
+    title: 'Cybertruck — Lease From $949/mo',
+    body: 'Utility truck lease offers on select configurations. Terms apply.',
+    image: images.cybertruck,
+    cta: 'cybertruck',
+  },
+  {
+    title: 'Solar + Powerwall Bundle (Demo)',
+    body: 'Explore home energy packages. Incentives and savings vary by region.',
+    image: images.powerwall,
+    cta: 'powerwall',
+  },
+  {
+    title: 'Wall Connector — Shop Charging',
+    body: 'Home charging hardware available in the Tesla Shop demo.',
+    image: images.wallConnector,
+    cta: 'home-charging',
+  },
 ];
 
 /** Current Offers page */

@@ -15,6 +15,7 @@ const models = [
     seats: '5',
     type: 'Sport Sedan',
     price: 'From $42,490*',
+    cargo: '23 cu ft',
   },
   {
     id: 'model-y',
@@ -25,6 +26,18 @@ const models = [
     seats: '5',
     type: 'Midsize SUV',
     price: 'From $44,990*',
+    cargo: '76 cu ft',
+  },
+  {
+    id: 'model-y-l',
+    name: 'Model Y L',
+    image: images.modelYL,
+    range: '—',
+    accel: '—',
+    seats: '6',
+    type: 'Long Wheelbase SUV',
+    price: 'From $61,990*',
+    cargo: '3-row flexible',
   },
   {
     id: 'model-s',
@@ -35,6 +48,7 @@ const models = [
     seats: '5',
     type: 'Luxury Sedan',
     price: 'Inventory',
+    cargo: '28 cu ft',
   },
   {
     id: 'model-x',
@@ -45,6 +59,7 @@ const models = [
     seats: '6–7',
     type: 'Premium SUV',
     price: 'Inventory',
+    cargo: '88 cu ft',
   },
   {
     id: 'cybertruck',
@@ -55,6 +70,7 @@ const models = [
     seats: '5',
     type: 'Utility Truck',
     price: 'From $69,990*',
+    cargo: 'Vault bed',
   },
 ];
 
@@ -163,6 +179,7 @@ export function ComparePage() {
                   ['Range (EPA est.)', ...chosen.map((m) => m.range)],
                   ['0–60 mph', ...chosen.map((m) => m.accel)],
                   ['Seats', ...chosen.map((m) => m.seats)],
+                  ['Cargo', ...chosen.map((m) => m.cargo)],
                   ['Price', ...chosen.map((m) => m.price)],
                 ].map((row) => (
                   <tr key={row[0]}>
